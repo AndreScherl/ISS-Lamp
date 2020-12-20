@@ -58,6 +58,4 @@ class ISSDetector:
                 
 if __name__ == "__main__":
     issdetector = ISSDetector()
-    issdetector.passtimes.insert(0, PassTime(time.time()-10, 5))
-    issdetector.passtimes.insert(0, PassTime(time.time()+10, 5))
     issdetector.schedule_next_pass()

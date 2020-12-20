@@ -1,5 +1,5 @@
 # ISS Detector
-Control a bluetooth LED bulb to show you that the International Space Station in upon you.
+Control a bluetooth LED bulb to show you that the International Space Station in above you.
 
 ## Requirements
 * [Govee Bluetooth LED Package](https://github.com/chvolkmann/govee_btled) by [@cvolkmann](https://github.com/chvolkmann). You have to install it with `pip install -U git+https://github.com/Freemanium/govee_btled`.

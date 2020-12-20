@@ -1,0 +1,12 @@
+certifi==2020.12.5
+chardet==4.0.0
+colour==0.1.5
+enum-compat==0.0.3
+govee-btled==1.0
+idna==2.10
+pexpect==4.8.0
+ptyprocess==0.6.0
+pygatt==4.0.5
+pyserial==3.5
+requests==2.25.1
+urllib3==1.26.2

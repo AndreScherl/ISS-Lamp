@@ -17,6 +17,11 @@ class ISSDetector:
     def __init__(self) -> None:
         super().__init__()
         self.passtimes = self.request_passtimes(config.location)
+        try:
+            lamp = BluetoothLED(config.mac)
+            lamp.set_state(False)
+        except ConnectionTimeout as err:
+            print(err) 
 
     def request_passtimes(self, location) -> List[PassTime]:
         response = requests.get(config.apiurl, location).json()["response"]

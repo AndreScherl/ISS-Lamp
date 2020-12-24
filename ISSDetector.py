@@ -34,27 +34,32 @@ class ISSDetector:
         for passtime in self.passtimes:
             now = time.time()
             if passtime.risetime > now:
-                timer_visible_start = Timer(passtime.risetime - now, self.notify, ["start"])
+                timer_visible_start = Timer(passtime.risetime - now, self.notify, [passtime])
                 timer_visible_start.start()
-                timer_visible_end = Timer(passtime.risetime - now + passtime.duration, self.notify, ["end"])
-                timer_visible_end.start()
                 return
         self.passtimes = self.request_passtimes(config.location)
         self.schedule_next_pass()
 
-    def notify(self, rise_event) -> None:
+    def notify(self, passtime) -> None:
         try:
             lamp = BluetoothLED(config.mac)
-			
-            if rise_event == "start":
-	            print("turn light on")
-	            lamp.set_state(True)
-	            lamp.set_color('blue')
-	        
-            if rise_event == "end":
-	            print("turn light off")
-	            lamp.set_state(False)
-	            self.schedule_next_pass()
+            lamp.set_state(True)
+            lamp.set_color("purple")
+            brightness = 0
+            lamp.set_brightness(brightness)
+            seconds = 0
+            
+            while seconds <= passtime.duration:
+                if seconds <= passtime.duration/2:
+                    brightness += 0.0031
+                else:
+                    brightness -= 0.0031
+                lamp.set_brightness(min(1, brightness))
+                seconds += 1
+                time.sleep(1)
+            
+            lamp.set_state(False)
+            self.schedule_next_pass()
 			
         except ConnectionTimeout as err:
             print(err) 

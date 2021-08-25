@@ -5,7 +5,7 @@ import config
 import requests
 import time
 from threading import Timer
-from govee_btled import BluetoothLED, ConnectionTimeout
+import RPi.GPIO as GPIO
 
 class PassTime:
     def __init__(self, risetime, duration) -> None:
@@ -17,11 +17,10 @@ class ISSDetector:
     def __init__(self) -> None:
         super().__init__()
         self.passtimes = self.request_passtimes(config.location)
-        try:
-            lamp = BluetoothLED(config.mac)
-            lamp.set_state(False)
-        except ConnectionTimeout as err:
-            print(err) 
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setwarnings(False)
+        GPIO.setup(config.led["red"], GPIO.OUT)
+        GPIO.setup(config.led["blue"], GPIO.OUT)
 
     def request_passtimes(self, location) -> List[PassTime]:
         response = requests.get(config.apiurl, location).json()["response"]
@@ -41,31 +40,17 @@ class ISSDetector:
         self.schedule_next_pass()
 
     def notify(self, passtime) -> None:
-        try:
-            lamp = BluetoothLED(config.mac)
-            lamp.set_state(True)
-            lamp.set_color("purple")
-            brightness = 0
-            lamp.set_brightness(brightness)
-            seconds = 0
-            
-            while seconds <= passtime.duration:
-                if seconds <= passtime.duration/2:
-                    brightness += 0.0031
-                else:
-                    brightness -= 0.0031
-                lamp.set_brightness(min(1, brightness))
-                seconds += 1
-                time.sleep(1)
-            
-            lamp.set_state(False)
-            self.schedule_next_pass()
-			
-        except ConnectionTimeout as err:
-            print(err) 
-        except KeyboardInterrupt:
-            print('^C')
-                
+        minutes = 0
+        while minutes*60 <= passtime.duration:
+            if minutes*60 <= passtime.duration/3 and minutes*60 >= 2*passtime.duration/3:
+                GPIO.output(config.led["blue"], GPIO.HIGH)
+            else:
+                GPIO.output(config.led["red"], GPIO.HIGH)
+            minutes += 1
+            time.sleep(60)
+        GPIO.output(config.led["red"], GPIO.LOW)
+        GPIO.output(config.led["blue"], GPIO.LOW)
+
 if __name__ == "__main__":
     issdetector = ISSDetector()
     issdetector.schedule_next_pass()

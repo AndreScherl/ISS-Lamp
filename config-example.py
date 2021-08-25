@@ -11,4 +11,4 @@ location = {
 }
 
 # API url to get ISS passing data
-apiurl = "http://api.open-notify.org/iss-pass.json"
+apiurl = "http://api.open-notify.org/iss/"

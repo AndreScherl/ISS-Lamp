@@ -19,8 +19,8 @@ class ISSDetector:
         self.passtimes = self.request_passtimes(config.location)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setwarnings(False)
-        GPIO.setup(config.led["red"], GPIO.OUT)
-        GPIO.setup(config.led["blue"], GPIO.OUT)
+        GPIO.setup(config.led["red"], GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(config.led["blue"], GPIO.OUT, initial=GPIO.LOW)
 
     def request_passtimes(self, location) -> List[PassTime]:
         response = requests.get(config.apiurl, location).json()["response"]
@@ -37,22 +37,17 @@ class ISSDetector:
                 timer_visible_start.start()
                 return
         self.passtimes = self.request_passtimes(config.location)
-        print(self.passtimes)
         self.schedule_next_pass()
 
     def notify(self, passtime) -> None:
-        print("notify")
         minutes = 0
         while minutes*60 <= passtime.duration:
             if minutes*60 >= passtime.duration/3 and minutes*60 <= 2*passtime.duration/3:
-                print("blue lamp on")
                 GPIO.output(config.led["blue"], GPIO.HIGH)
             else:
-                print("red lamp on")
                 GPIO.output(config.led["red"], GPIO.HIGH)
             minutes += 1
             time.sleep(60)
-        print("all lamps off")
         GPIO.output(config.led["red"], GPIO.LOW)
         GPIO.output(config.led["blue"], GPIO.LOW)
         self.schedule_next_pass()

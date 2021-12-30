@@ -17,6 +17,7 @@ class ISSDetector:
     def __init__(self) -> None:
         super().__init__()
         self.passtimes = self.request_passtimes(config.location)
+        self.bt_err_times = 0
         try:
             lamp = BluetoothLED(config.mac)
             lamp.set_state(False)
@@ -62,7 +63,10 @@ class ISSDetector:
             self.schedule_next_pass()
 			
         except ConnectionTimeout as err:
-            print(err) 
+            print(err)
+            print("Try again " + self.bt_err_times + ". time.")
+            self.notify(passtime)
+
         except KeyboardInterrupt:
             print('^C')
                 

@@ -5,7 +5,7 @@ import config
 import requests
 import time
 from threading import Timer
-from govee_btled import BluetoothLED, ConnectionTimeout
+import os
 
 class PassTime:
     def __init__(self, risetime, duration) -> None:
@@ -18,11 +18,7 @@ class ISSDetector:
         super().__init__()
         self.passtimes = self.request_passtimes(config.location)
         self.bt_err_times = 0
-        try:
-            lamp = BluetoothLED(config.mac)
-            lamp.set_state(False)
-        except ConnectionTimeout as err:
-            print(err) 
+        os.system('uhubctl -a off -l 1-1 > /dev/null')
 
     def request_passtimes(self, location) -> List[PassTime]:
         response = requests.get(config.apiurl, location).json()["response"]
@@ -43,29 +39,12 @@ class ISSDetector:
 
     def notify(self, passtime) -> None:
         try:
-            lamp = BluetoothLED(config.mac)
-            lamp.set_state(True)
-            lamp.set_color("purple")
-            brightness = 0
-            lamp.set_brightness(brightness)
-            seconds = 0
-            
             while seconds <= passtime.duration:
-                if seconds <= passtime.duration/2:
-                    brightness += 0.0031
-                else:
-                    brightness -= 0.0031
-                lamp.set_brightness(min(1, brightness))
+                os.system('uhubctl -a on -l 1-1 > /dev/null')
                 seconds += 1
                 time.sleep(1)
-            
-            lamp.set_state(False)
+
             self.schedule_next_pass()
-			
-        except ConnectionTimeout as err:
-            print(err)
-            print("Try again " + self.bt_err_times + ". time.")
-            self.notify(passtime)
 
         except KeyboardInterrupt:
             print('^C')

@@ -39,11 +39,9 @@ class ISSDetector:
 
     def notify(self, passtime) -> None:
         try:
-            while seconds <= passtime.duration:
-                os.system('uhubctl -a on -l 1-1 > /dev/null')
-                seconds += 1
-                time.sleep(1)
-
+            os.system('uhubctl -a on -l 1-1 > /dev/null')
+            time.sleep(passtime.duration)
+            os.system('uhubctl -a off -l 1-1 > /dev/null')
             self.schedule_next_pass()
 
         except KeyboardInterrupt:
